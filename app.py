@@ -1,6 +1,7 @@
 import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
+import langchain
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceInstructEmbeddings
 from langchain.vectorstores import FAISS
@@ -9,6 +10,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
+from Crypto.Cipher import AES
+
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -91,6 +94,8 @@ def main():
 
                 # get the text chunks
                 text_chunks = get_text_chunks(raw_text)
+            
+
 
                 # create vector store
                 vectorstore = get_vectorstore(text_chunks)
