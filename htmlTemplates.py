@@ -29,6 +29,7 @@ import os
 home_path = os.path.expanduser("~")
 print("Home path:", home_path)
 
+
 bot_template = '''
 <div class="chat-message bot">
     <div class="avatar">

@@ -11,6 +11,11 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
 from Crypto.Cipher import AES
+import os
+from pinecone import Pinecone
+from pinecone import ServerlessSpec, PodSpec
+import time
+
 
 
 def get_pdf_text(pdf_docs):
@@ -65,10 +70,36 @@ def handle_userinput(user_question):
         else:
             st.write(bot_template.replace(
                 "{{MSG}}", message.content), unsafe_allow_html=True)
+            
+def pinecone_setup(pc):
+    environment = os.environ.get('PINECONE_ENVIRONMENT') or 'PINECONE_ENVIRONMENT'
+    use_serverless = os.environ.get("USE_SERVERLESS", "False").lower() == "true"
+    if use_serverless:
+        spec = ServerlessSpec(cloud='aws', region='us-west-2')
+    else:
+        spec = PodSpec(environment=environment)
+
+    index_name = 'multiple-pdfs'
+
+    if index_name in pc.list_indexes().names():
+        index = pc.Index("multiple-pdfs")
+
+    return [spec, index]
+
+def upsert_pinecone():
+    pass
 
 
 def main():
     load_dotenv()
+    api_key = os.environ.get('PINECONE_API_KEY')
+    pc = Pinecone(api_key=api_key)
+
+    spec, index = pinecone_setup(pc)
+    print(spec, index)
+    #stopped here
+    
+
     st.set_page_config(page_title="Chat with multiple PDFs",
                        page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
@@ -94,7 +125,7 @@ def main():
 
                 # get the text chunks
                 text_chunks = get_text_chunks(raw_text)
-            
+                upsert_pinecone()
 
 
                 # create vector store
